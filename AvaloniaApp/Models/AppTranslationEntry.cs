@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -14,6 +15,10 @@ public partial class AppTranslationEntry : ObservableObject
     public required IBrush TargetLogoColor { get; init; }
     public required string TargetPackageManager { get; init; }
     public string? Explanation { get; init; }
+
+    // Substrings to match against real installed program names. Empty means
+    // match against SourceApp itself (it's already a distinctive substring).
+    public string[] DetectionAliases { get; init; } = Array.Empty<string>();
 
     [ObservableProperty]
     private bool _isIncluded = true;

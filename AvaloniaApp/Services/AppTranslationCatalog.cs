@@ -1,22 +1,35 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Media;
 using AvaloniaApp.Models;
 
 namespace AvaloniaApp.Services;
 
-// TODO: replace with a real scan of the Windows registry / AppData installed-program
-// list (Architecture.md §5). Until that's built, this is a small hardcoded placeholder
-// so the App Translation modal is demoable with real data-binding plumbing.
+// Curated Windows-app -> Linux-equivalent mapping table. This part stays hand-picked
+// (it's recommendation, not detection) - what's real is which of these entries actually
+// apply, filtered against InstalledProgramScanner's real registry scan.
 public class AppTranslationCatalog
 {
-    public IReadOnlyList<AppTranslationEntry> GetSuggestions() => new List<AppTranslationEntry>
+    public IReadOnlyList<AppTranslationEntry> GetSuggestions(IReadOnlyList<string> installedPrograms)
+    {
+        return AllEntries().Where(entry =>
+        {
+            var aliases = entry.DetectionAliases.Length > 0 ? entry.DetectionAliases : new[] { entry.SourceApp };
+            return aliases.Any(alias => installedPrograms.Any(installed =>
+                installed.Contains(alias, StringComparison.OrdinalIgnoreCase)));
+        }).ToList();
+    }
+
+    private static IReadOnlyList<AppTranslationEntry> AllEntries() => new List<AppTranslationEntry>
     {
         new()
         {
             SourceApp = "MS Office", SourceLogoGlyph = "W", SourceLogoColor = Brush.Parse("#0078D7"),
             TargetApp = "OnlyOffice", TargetLogoGlyph = "O", TargetLogoColor = Brush.Parse("#D83B01"),
             TargetPackageManager = "Flatpak",
-            Explanation = "Highly compatible alternative that opens .docx/.xlsx/.pptx without conversion issues."
+            Explanation = "Highly compatible alternative that opens .docx/.xlsx/.pptx without conversion issues.",
+            DetectionAliases = new[] { "Microsoft Office", "Microsoft 365" }
         },
         new()
         {

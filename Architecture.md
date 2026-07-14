@@ -34,14 +34,14 @@
 
 ## 4. UX Modals (Data Translation)
 
-* **App Translation View:** Maps Windows `.exe` to Linux package. Format: `[Old App Logo] -> [New App Logo]`. Includes brief explanation text (e.g., *why* OnlyOffice is used) and a pre-install opt-out checkbox. Currently sourced from a small hardcoded catalog (`AppTranslationCatalog`), standing in for the real registry/AppData scan described in §5.
+* **App Translation View:** Maps Windows `.exe` to Linux package. Format: `[Old App Logo] -> [New App Logo]`. Includes brief explanation text (e.g., *why* OnlyOffice is used) and a pre-install opt-out checkbox. Implemented, fed by real detected installed programs (§5); the Windows-app -> Linux-equivalent mapping itself comes from a small curated table (`AppTranslationCatalog`) by nature, not something to detect. Shows an empty-state message if no familiar applications were found.
 * **Game Compatibility View:** Categorized by Steam Deck tiers ("Runs perfectly", "Runs fine", "Unknown"). Capped at 7 visible items per list (expandable). Includes ProtonDB community notes under titles. Implemented, fed by real detected Steam library data (§5); the ProtonDB notes themselves come from a placeholder lookup table pending the real API integration.
 
 ## 5. Backend Diagnostics & Data Extraction
 
 * **Hardware Polling:** C# GPU detection is implemented and wired into Slide 3's readout (`wmic` on Windows, `lspci` on Linux). Flags payload for `nvidia-open` modules on NVIDIA hardware.
 * **Library Parsing:** Implemented. `SteamLibraryService` parses `libraryfolders.vdf` and `appmanifest_*.acf` (Valve's VDF/KeyValues format) to find real Steam library paths and installed games, via the Windows registry or the standard Linux Steam directories. Pinging the real ProtonDB/AreWeAntiCheatYet APIs is not yet implemented; `ProtonDbClient` currently returns a small hardcoded lookup table as a placeholder.
-* **App Dictionary:** Translates detected Windows workflows to APT, DNF, or Flatpak equivalents. Not yet implemented, see §4.
+* **App Dictionary:** Translates detected Windows workflows to APT, DNF, or Flatpak equivalents. `InstalledProgramScanner` reads the real registry Uninstall keys (`HKLM`/`HKLM\WOW6432Node`/`HKCU`, same source Control Panel's "Programs and Features" uses) to find installed programs; `AppTranslationCatalog` matches them against its curated table. See §4.
 * **User Data Staging:** Extracts active Windows wallpaper from AppData. Uses Rclone to authenticate (intercepting `127.0.0.1` OAuth) and queue `/home` directory transfers. Not yet implemented.
 
 ## 6. Payload Staging (The Deployment Engine)

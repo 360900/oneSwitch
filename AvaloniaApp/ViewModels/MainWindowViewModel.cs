@@ -48,8 +48,9 @@ public partial class MainWindowViewModel : ViewModelBase
         var steamLibrary = new SteamLibraryService();
         var protonDb = new ProtonDbClient();
         var appCatalog = new AppTranslationCatalog();
+        var programScanner = new InstalledProgramScanner();
 
-        AppTranslationModal = new AppTranslationModalViewModel(appCatalog, () => IsAppTranslationModalVisible = false);
+        AppTranslationModal = new AppTranslationModalViewModel(appCatalog, programScanner, () => IsAppTranslationModalVisible = false);
         GameCompatModal = new GameCompatModalViewModel(steamLibrary, protonDb, () => IsGameCompatModalVisible = false);
 
         Slides = new List<ViewModelBase>
