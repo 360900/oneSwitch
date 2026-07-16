@@ -50,7 +50,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var appCatalog = new AppTranslationCatalog();
         var programScanner = new InstalledProgramScanner();
 
-        AppTranslationModal = new AppTranslationModalViewModel(appCatalog, programScanner, () => IsAppTranslationModalVisible = false);
+        AppTranslationModal = new AppTranslationModalViewModel(appCatalog, programScanner, State, () => IsAppTranslationModalVisible = false);
         GameCompatModal = new GameCompatModalViewModel(steamLibrary, protonDb, () => IsGameCompatModalVisible = false);
 
         Slides = new List<ViewModelBase>

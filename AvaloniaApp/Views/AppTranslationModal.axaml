@@ -27,17 +27,17 @@
                                         <TextBlock Text="{Binding SourceApp}" VerticalAlignment="Center" FontWeight="SemiBold"/>
                                     </StackPanel>
                                     <TextBlock Text="→" Grid.Column="2" VerticalAlignment="Center" Margin="16,0" FontSize="20" Foreground="{DynamicResource TextMutedBrush}"/>
-                                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8">
-                                        <Border Width="32" Height="32" Background="{Binding TargetLogoColor}" CornerRadius="4">
+                                    <Grid Grid.Column="3" ColumnDefinitions="Auto,*">
+                                        <Border Grid.Column="0" Width="32" Height="32" Background="{Binding TargetLogoColor}" CornerRadius="4" VerticalAlignment="Top" Margin="0,0,8,0">
                                             <TextBlock Text="{Binding TargetLogoGlyph}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
-                                        <StackPanel VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding TargetApp}" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding TargetPackageManager}" FontSize="12" Foreground="{DynamicResource TextMutedBrush}"/>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="{Binding TargetApp}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding ResolvedPackageDisplay}" FontSize="12" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap"/>
                                             <TextBlock Text="{Binding Explanation}" FontSize="11" FontStyle="Italic" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap"
                                                        IsVisible="{Binding Explanation, Converter={x:Static conv:StringConverters.IsNotNullOrEmpty}}"/>
                                         </StackPanel>
-                                    </StackPanel>
+                                    </Grid>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

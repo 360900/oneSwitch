@@ -37,6 +37,14 @@ public enum BackupMethod
     None
 }
 
+public enum PackageManagerFamily
+{
+    Apt,
+    Dnf,
+    Pacman,
+    Flatpak
+}
+
 public partial class MigrationState : ObservableObject
 {
     [ObservableProperty]
