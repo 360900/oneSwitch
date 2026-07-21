@@ -39,6 +39,13 @@ namespace AvaloniaApp.Services;
 // coincidentally contain another app's name ("MSTeams" contains "Steam", which used to
 // make the Steam entry false-positive on a Microsoft Teams Store install). Only entries
 // with a real, confirmed Store package declare a prefix.
+//
+// Every catalog entry was checked against the live Microsoft Store catalog API for a
+// genuine MSIX distribution (not just a Store *listing* - many apps have a Store page that
+// silently runs the vendor's ordinary .exe/.msi installer with no real package identity, so
+// they're indistinguishable from a direct download and can't be detected this way; those
+// were deliberately left without a prefix). Entries with no prefix either have no Store
+// presence at all, or only a Store wrapper around the classic installer.
 public class AppTranslationCatalog
 {
     public IReadOnlyList<AppTranslationEntry> GetSuggestions(IReadOnlyList<DetectedProgram> installedPrograms)
@@ -117,7 +124,8 @@ public class AppTranslationCatalog
             TargetApp = "Firefox", TargetLogoGlyph = "F", TargetLogoColor = Brush.Parse("#FF7139"),
             Explanation = "Ships preinstalled on most distros already.",
             AptPackage = "firefox", DnfPackage = "firefox", AurPackage = "firefox", AurIsOfficialRepo = true,
-            FlatpakId = "org.mozilla.firefox", IsBrowser = true
+            FlatpakId = "org.mozilla.firefox", IsBrowser = true,
+            AppxPackageFamilyPrefixes = new[] { "Mozilla.Firefox" }
         },
         new()
         {
@@ -144,7 +152,10 @@ public class AppTranslationCatalog
             Explanation = "Highly compatible alternative that opens .docx/.xlsx/.pptx without conversion issues.",
             AptPackage = "onlyoffice-desktopeditors", DnfPackage = "onlyoffice-desktopeditors", AurPackage = "onlyoffice-bin",
             FlatpakId = "org.onlyoffice.desktopeditors",
-            DetectionAliases = new[] { "Microsoft Office", "Microsoft 365" }
+            DetectionAliases = new[] { "Microsoft Office", "Microsoft 365" },
+            // The full desktop Office suite installed from the Microsoft Store ("Office
+            // Centennial") ships as this MSIX package family.
+            AppxPackageFamilyPrefixes = new[] { "Microsoft.Office.Desktop" }
         },
         new()
         {
@@ -172,7 +183,8 @@ public class AppTranslationCatalog
             SourceApp = "Evernote", SourceLogoGlyph = "E", SourceLogoColor = Brush.Parse("#2DBE60"),
             TargetApp = "Joplin", TargetLogoGlyph = "J", TargetLogoColor = Brush.Parse("#1071D3"),
             Explanation = "Notebook/tag structure carries over closely, plus end-to-end encrypted sync.",
-            AurPackage = "joplin-appimage", FlatpakId = "net.cozic.joplin_desktop"
+            AurPackage = "joplin-appimage", FlatpakId = "net.cozic.joplin_desktop",
+            AppxPackageFamilyPrefixes = new[] { "Evernote.Evernote" }
         },
         new()
         {
@@ -187,7 +199,11 @@ public class AppTranslationCatalog
             TargetApp = "Xournal++", TargetLogoGlyph = "X", TargetLogoColor = Brush.Parse("#5A8F3C"),
             Explanation = "Free-form notebook with handwriting/annotation support.",
             AptPackage = "xournalpp", DnfPackage = "xournalpp", AurPackage = "xournalpp", AurIsOfficialRepo = true,
-            FlatpakId = "com.github.xournalpp.xournalpp"
+            FlatpakId = "com.github.xournalpp.xournalpp",
+            // The legacy "OneNote for Windows 10" UWP app - still a genuine identity
+            // present on many machines, though new Store installs redirect to Office
+            // Click-to-Run instead and won't produce this package.
+            AppxPackageFamilyPrefixes = new[] { "Microsoft.Office.OneNote" }
         },
         new()
         {
@@ -224,7 +240,8 @@ public class AppTranslationCatalog
             SourceApp = "Slack", SourceLogoGlyph = "S", SourceLogoColor = Brush.Parse("#4A154B"),
             TargetApp = "Slack", TargetLogoGlyph = "S", TargetLogoColor = Brush.Parse("#4A154B"),
             Explanation = "Slack ships an official Linux client.",
-            AurPackage = "slack-desktop", FlatpakId = "com.slack.Slack"
+            AurPackage = "slack-desktop", FlatpakId = "com.slack.Slack",
+            AppxPackageFamilyPrefixes = new[] { "91750D7E.Slack" }
         },
         new()
         {
@@ -243,7 +260,8 @@ public class AppTranslationCatalog
             TargetApp = "Telegram Desktop", TargetLogoGlyph = "T", TargetLogoColor = Brush.Parse("#26A5E4"),
             Explanation = "Telegram ships an official Linux client.",
             AptPackage = "telegram-desktop", DnfPackage = "telegram-desktop", AurPackage = "telegram-desktop",
-            AurIsOfficialRepo = true, FlatpakId = "org.telegram.desktop"
+            AurIsOfficialRepo = true, FlatpakId = "org.telegram.desktop",
+            AppxPackageFamilyPrefixes = new[] { "TelegramMessengerLLP.TelegramDesktop" }
         },
         new()
         {
@@ -292,14 +310,16 @@ public class AppTranslationCatalog
             SourceApp = "VLC Media Player", SourceLogoGlyph = "V", SourceLogoColor = Brush.Parse("#FF8800"),
             TargetApp = "VLC", TargetLogoGlyph = "V", TargetLogoColor = Brush.Parse("#FF8800"),
             Explanation = "VLC ships an official Linux client.",
-            AptPackage = "vlc", DnfPackage = "vlc", AurPackage = "vlc", AurIsOfficialRepo = true, FlatpakId = "org.videolan.VLC"
+            AptPackage = "vlc", DnfPackage = "vlc", AurPackage = "vlc", AurIsOfficialRepo = true, FlatpakId = "org.videolan.VLC",
+            AppxPackageFamilyPrefixes = new[] { "VideoLAN.VLC" }
         },
         new()
         {
             SourceApp = "iTunes", SourceLogoGlyph = "iT", SourceLogoColor = Brush.Parse("#FA243C"),
             TargetApp = "Cider", TargetLogoGlyph = "C", TargetLogoColor = Brush.Parse("#FA243C"),
             Explanation = "Apple Music client with a comparable library/playlist experience.",
-            AurPackage = "cider", FlatpakId = "sh.cider.Cider"
+            AurPackage = "cider", FlatpakId = "sh.cider.Cider",
+            AppxPackageFamilyPrefixes = new[] { "AppleInc.iTunes" }
         },
         new()
         {
@@ -315,7 +335,8 @@ public class AppTranslationCatalog
             TargetApp = "Strawberry", TargetLogoGlyph = "S", TargetLogoColor = Brush.Parse("#2E86AB"),
             Explanation = "Advanced music library manager and player with a similar power-user focus.",
             AptPackage = "strawberry", DnfPackage = "strawberry", AurPackage = "strawberry", AurIsOfficialRepo = true,
-            FlatpakId = "org.strawberrymusicplayer.strawberry"
+            FlatpakId = "org.strawberrymusicplayer.strawberry",
+            AppxPackageFamilyPrefixes = new[] { "Resolute.foobar2000" }
         },
         new()
         {
@@ -329,7 +350,8 @@ public class AppTranslationCatalog
             SourceApp = "Kodi", SourceLogoGlyph = "K", SourceLogoColor = Brush.Parse("#17B2E7"),
             TargetApp = "Kodi", TargetLogoGlyph = "K", TargetLogoColor = Brush.Parse("#17B2E7"),
             Explanation = "Kodi ships an official Linux client.",
-            AptPackage = "kodi", DnfPackage = "kodi", AurPackage = "kodi", AurIsOfficialRepo = true, FlatpakId = "tv.kodi.Kodi"
+            AptPackage = "kodi", DnfPackage = "kodi", AurPackage = "kodi", AurIsOfficialRepo = true, FlatpakId = "tv.kodi.Kodi",
+            AppxPackageFamilyPrefixes = new[] { "XBMCFoundation.Kodi" }
         },
         new()
         {
@@ -396,14 +418,18 @@ public class AppTranslationCatalog
             TargetApp = "Prism Launcher", TargetLogoGlyph = "P", TargetLogoColor = Brush.Parse("#5D8A41"),
             Explanation = "Modern, actively maintained Minecraft launcher with mod/modpack support.",
             AptPackage = "prismlauncher", AurPackage = "prismlauncher", AurIsOfficialRepo = true,
-            FlatpakId = "org.prismlauncher.PrismLauncher"
+            FlatpakId = "org.prismlauncher.PrismLauncher",
+            // Minecraft for Windows (Bedrock Edition, Store-installed) ships as this MSIX
+            // package family. This won't match the separate Java Edition installer.
+            AppxPackageFamilyPrefixes = new[] { "Microsoft.MinecraftUWP" }
         },
         new()
         {
             SourceApp = "Roblox", SourceLogoGlyph = "R", SourceLogoColor = Brush.Parse("#E2231A"),
             TargetApp = "Vinegar", TargetLogoGlyph = "V", TargetLogoColor = Brush.Parse("#00A2FF"),
             Explanation = "Wine wrapper purpose-built for running Roblox on Linux.",
-            AurPackage = "vinegar", FlatpakId = "org.vinegarhq.Vinegar"
+            AurPackage = "vinegar", FlatpakId = "org.vinegarhq.Vinegar",
+            AppxPackageFamilyPrefixes = new[] { "ROBLOXCORPORATION.ROBLOX" }
         },
         new()
         {
@@ -495,7 +521,8 @@ public class AppTranslationCatalog
             SourceApp = "Blender", SourceLogoGlyph = "B", SourceLogoColor = Brush.Parse("#F5792A"),
             TargetApp = "Blender", TargetLogoGlyph = "B", TargetLogoColor = Brush.Parse("#F5792A"),
             Explanation = "Blender ships an official Linux client.",
-            AptPackage = "blender", DnfPackage = "blender", AurPackage = "blender", AurIsOfficialRepo = true, FlatpakId = "org.blender.Blender"
+            AptPackage = "blender", DnfPackage = "blender", AurPackage = "blender", AurIsOfficialRepo = true, FlatpakId = "org.blender.Blender",
+            AppxPackageFamilyPrefixes = new[] { "BlenderFoundation.Blender" }
         },
         new()
         {
@@ -539,7 +566,8 @@ public class AppTranslationCatalog
             SourceApp = "Paint.NET", SourceLogoGlyph = "P", SourceLogoColor = Brush.Parse("#2D72D9"),
             TargetApp = "Pinta", TargetLogoGlyph = "P", TargetLogoColor = Brush.Parse("#1F8A70"),
             Explanation = "Closest match for simple layer-based raster editing.",
-            DnfPackage = "pinta", AurPackage = "pinta", FlatpakId = "com.github.PintaProject.Pinta"
+            DnfPackage = "pinta", AurPackage = "pinta", FlatpakId = "com.github.PintaProject.Pinta",
+            AppxPackageFamilyPrefixes = new[] { "dotPDNLLC.paint.net" }
         },
         new()
         {
@@ -547,7 +575,8 @@ public class AppTranslationCatalog
             TargetApp = "Inkscape", TargetLogoGlyph = "I", TargetLogoColor = Brush.Parse("#000000"),
             Explanation = "Vector editor with a comparable pen/path toolset.",
             AptPackage = "inkscape", DnfPackage = "inkscape", AurPackage = "inkscape", AurIsOfficialRepo = true,
-            FlatpakId = "org.inkscape.Inkscape"
+            FlatpakId = "org.inkscape.Inkscape",
+            AppxPackageFamilyPrefixes = new[] { "CorelCorporation.CorelDRAW" }
         },
         new()
         {
@@ -639,7 +668,10 @@ public class AppTranslationCatalog
             TargetApp = "FileZilla", TargetLogoGlyph = "F", TargetLogoColor = Brush.Parse("#BF0000"),
             Explanation = "FileZilla ships an official Linux client.",
             AptPackage = "filezilla", DnfPackage = "filezilla", AurPackage = "filezilla", AurIsOfficialRepo = true,
-            FlatpakId = "org.filezillaproject.Filezilla"
+            FlatpakId = "org.filezillaproject.Filezilla",
+            // Only FileZilla Pro (the commercial edition) has a real Store MSIX package -
+            // the free FileZilla Client doesn't.
+            AppxPackageFamilyPrefixes = new[] { "BusinessFollowssrl.FileZillaPro" }
         },
         new()
         {
@@ -647,7 +679,10 @@ public class AppTranslationCatalog
             TargetApp = "FileZilla", TargetLogoGlyph = "F", TargetLogoColor = Brush.Parse("#BF0000"),
             Explanation = "Closest match for SFTP/FTP file transfer with a similar dual-pane feel.",
             AptPackage = "filezilla", DnfPackage = "filezilla", AurPackage = "filezilla", AurIsOfficialRepo = true,
-            FlatpakId = "org.filezillaproject.Filezilla"
+            FlatpakId = "org.filezillaproject.Filezilla",
+            // Real package name, verified against the live Store listing - it genuinely
+            // has this typo (missing the "r" in Prikryl), not a transcription error here.
+            AppxPackageFamilyPrefixes = new[] { "MartinPikryl.WinSCP" }
         },
         new()
         {
@@ -661,7 +696,8 @@ public class AppTranslationCatalog
             SourceApp = "DBeaver", SourceLogoGlyph = "DB", SourceLogoColor = Brush.Parse("#382923"),
             TargetApp = "DBeaver", TargetLogoGlyph = "DB", TargetLogoColor = Brush.Parse("#382923"),
             Explanation = "DBeaver ships an official Linux client.",
-            AurPackage = "dbeaver", AurIsOfficialRepo = true, FlatpakId = "io.dbeaver.DBeaverCommunity"
+            AurPackage = "dbeaver", AurIsOfficialRepo = true, FlatpakId = "io.dbeaver.DBeaverCommunity",
+            AppxPackageFamilyPrefixes = new[] { "DBeaverCorp.DBeaverCE" }
         },
 
         // --- System Utilities & Hardware ---
@@ -684,7 +720,8 @@ public class AppTranslationCatalog
             SourceApp = "Rufus", SourceLogoGlyph = "R", SourceLogoColor = Brush.Parse("#00539C"),
             TargetApp = "Ventoy", TargetLogoGlyph = "V", TargetLogoColor = Brush.Parse("#1E88E5"),
             Explanation = "Write once, then drag ISOs onto the drive - no reflashing per image.",
-            AurPackage = "ventoy-bin"
+            AurPackage = "ventoy-bin",
+            AppxPackageFamilyPrefixes = new[] { "19453.net.Rufus" }
         },
         new()
         {
@@ -744,7 +781,8 @@ public class AppTranslationCatalog
             TargetApp = "Flameshot", TargetLogoGlyph = "F", TargetLogoColor = Brush.Parse("#00C853"),
             Explanation = "Screenshot/annotation tool with a similar region-capture workflow.",
             AptPackage = "flameshot", DnfPackage = "flameshot", AurPackage = "flameshot", AurIsOfficialRepo = true,
-            FlatpakId = "org.flameshot.Flameshot"
+            FlatpakId = "org.flameshot.Flameshot",
+            AppxPackageFamilyPrefixes = new[] { "19568ShareX.ShareX" }
         },
         new()
         {
@@ -773,7 +811,8 @@ public class AppTranslationCatalog
             TargetApp = "Filelight", TargetLogoGlyph = "F", TargetLogoColor = Brush.Parse("#1D99F3"),
             Explanation = "Visual disk-usage breakdown, same radial/treemap style.",
             AptPackage = "filelight", DnfPackage = "filelight", AurPackage = "filelight", AurIsOfficialRepo = true,
-            FlatpakId = "org.kde.filelight"
+            FlatpakId = "org.kde.filelight",
+            AppxPackageFamilyPrefixes = new[] { "WinDirStatTeam.WinDirStat" }
         },
         new()
         {
@@ -834,21 +873,26 @@ public class AppTranslationCatalog
             SourceApp = "Dropbox", SourceLogoGlyph = "D", SourceLogoColor = Brush.Parse("#0061FF"),
             TargetApp = "Dropbox", TargetLogoGlyph = "D", TargetLogoColor = Brush.Parse("#0061FF"),
             Explanation = "Dropbox ships an official Linux client.",
-            AptPackage = "nautilus-dropbox", DnfPackage = "nautilus-dropbox", AurPackage = "dropbox", FlatpakId = "com.dropbox.Client"
+            AptPackage = "nautilus-dropbox", DnfPackage = "nautilus-dropbox", AurPackage = "dropbox", FlatpakId = "com.dropbox.Client",
+            AppxPackageFamilyPrefixes = new[] { "DropboxInc.Dropbox" }
         },
         new()
         {
             SourceApp = "1Password", SourceLogoGlyph = "1P", SourceLogoColor = Brush.Parse("#0094F5"),
             TargetApp = "1Password", TargetLogoGlyph = "1P", TargetLogoColor = Brush.Parse("#0094F5"),
             Explanation = "1Password ships an official Linux client.",
-            AptPackage = "1password", DnfPackage = "1password", AurPackage = "1password", FlatpakId = "com.onepassword.OnePassword"
+            AptPackage = "1password", DnfPackage = "1password", AurPackage = "1password", FlatpakId = "com.onepassword.OnePassword",
+            // Real package name, verified against the live Store listing - an
+            // auto-generated numeric identity rather than a "1Password"-branded one.
+            AppxPackageFamilyPrefixes = new[] { "DC5C6510.2032887045529" }
         },
         new()
         {
             SourceApp = "Bitwarden", SourceLogoGlyph = "B", SourceLogoColor = Brush.Parse("#175DDC"),
             TargetApp = "Bitwarden", TargetLogoGlyph = "B", TargetLogoColor = Brush.Parse("#175DDC"),
             Explanation = "Bitwarden ships an official Linux client.",
-            AurPackage = "bitwarden-bin", FlatpakId = "com.bitwarden.desktop"
+            AurPackage = "bitwarden-bin", FlatpakId = "com.bitwarden.desktop",
+            AppxPackageFamilyPrefixes = new[] { "8bitSolutionsLLC.bitwardendesktop" }
         },
         new()
         {
@@ -856,7 +900,8 @@ public class AppTranslationCatalog
             TargetApp = "KeePassXC", TargetLogoGlyph = "K", TargetLogoColor = Brush.Parse("#6CAC4D"),
             Explanation = "Local-first password manager, no cloud account required.",
             AptPackage = "keepassxc", DnfPackage = "keepassxc", AurPackage = "keepassxc", AurIsOfficialRepo = true,
-            FlatpakId = "org.keepassxc.KeePassXC"
+            FlatpakId = "org.keepassxc.KeePassXC",
+            AppxPackageFamilyPrefixes = new[] { "LastPass.LastPassforDesktop" }
         },
         new()
         {
