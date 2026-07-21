@@ -45,6 +45,22 @@ public enum PackageManagerFamily
     Flatpak
 }
 
+public enum TargetDistro
+{
+    Bazzite,
+    Fedora,
+    Debian,
+    Arch,
+    Mint
+}
+
+public enum DesktopEnvironment
+{
+    Gnome,
+    Kde,
+    Cinnamon
+}
+
 public partial class MigrationState : ObservableObject
 {
     [ObservableProperty]

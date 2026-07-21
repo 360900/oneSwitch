@@ -62,8 +62,9 @@ public partial class AppTranslationEntry : ObservableObject
     private string _resolvedPackageDisplay = string.Empty;
 
     // Picks the preferred manager's package id, falling back through the others
-    // (in Flatpak -> Apt -> Dnf -> Aur order) if unavailable for this app.
-    public string ResolvePackageDisplay(PackageManagerFamily preferred)
+    // (in Flatpak -> Apt -> Dnf -> Aur order) if unavailable for this app. Null Id means
+    // no real package exists for this app under any manager.
+    public (PackageManagerFamily Family, string? Id) ResolvePackage(PackageManagerFamily preferred)
     {
         (PackageManagerFamily Family, string? Id)[] candidates =
         {
@@ -75,16 +76,22 @@ public partial class AppTranslationEntry : ObservableObject
         };
 
         var match = candidates.FirstOrDefault(c => !string.IsNullOrEmpty(c.Id));
-        if (match.Id is null) return string.Empty;
+        return match.Id is null ? (preferred, null) : match;
+    }
 
-        var label = match.Family switch
+    public string ResolvePackageDisplay(PackageManagerFamily preferred)
+    {
+        var (family, id) = ResolvePackage(preferred);
+        if (id is null) return string.Empty;
+
+        var label = family switch
         {
             PackageManagerFamily.Apt => "APT",
             PackageManagerFamily.Dnf => "DNF",
             PackageManagerFamily.Pacman => AurIsOfficialRepo ? "Pacman" : "AUR",
             _ => "Flatpak"
         };
-        return $"{label}: {match.Id}";
+        return $"{label}: {id}";
     }
 
     private string? PackageFor(PackageManagerFamily family) => family switch

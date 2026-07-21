@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using AvaloniaApp.Models;
 using AvaloniaApp.Services;
@@ -12,6 +14,12 @@ public partial class MainWindowViewModel : ViewModelBase
     private const int TotalSteps = 3;
 
     public MigrationState State { get; }
+
+    // Where StartMigration writes the generated kargo.sh for inspection/testing. §6
+    // Payload Staging (not yet implemented) will consume the same FirstBootPayloadBuilder
+    // output directly instead of a file on disk - this path exists for the interim.
+    public string KargoScriptOutputPath { get; set; } =
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "kargo.sh");
 
     public IReadOnlyList<ViewModelBase> Slides { get; }
 
@@ -102,6 +110,38 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void StartMigration()
     {
-        // TODO: hand off to the payload-staging engine (Architecture.md §6-7) once it exists.
+        var script = FirstBootPayloadBuilder.Build(State, AppTranslationModal.Entries);
+
+        try
+        {
+            File.WriteAllText(KargoScriptOutputPath, script);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Inspection-only output path unwritable (e.g. no Desktop folder on this dev
+            // box) - not fatal, §6 Payload Staging will consume the builder output
+            // directly once it exists instead of relying on this file.
+        }
+
+        // Unattended install-config (preseed/kickstart/archinstall) is generated next to
+        // kargo.sh when supported. Bazzite/Mint return Content=null with a reason; the
+        // UnsupportedReason has no UI surface today (Slide 3 doesn't have a place for
+        // it), so unsupported cases just skip writing - deliberate rather than inventing
+        // new UI beyond what was asked.
+        var unattended = UnattendedScriptFactory.Build(State, script);
+        if (unattended.Content is not null)
+        {
+            var unattendedPath = Path.Combine(
+                Path.GetDirectoryName(KargoScriptOutputPath) ?? string.Empty,
+                unattended.FileName);
+            try
+            {
+                File.WriteAllText(unattendedPath, unattended.Content);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                // Same best-effort semantics as the kargo.sh write above.
+            }
+        }
     }
 }
