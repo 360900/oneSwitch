@@ -14,6 +14,7 @@ namespace AvaloniaApp.ViewModels;
 public partial class Slide3ViewModel : ViewModelBase
 {
     private readonly MigrationState _state;
+    private readonly GameCompatModalViewModel _gameCompat;
 
     public SlideHeaderViewModel Header { get; } = new(
         MaterialIconKind.ClipboardCheck,
@@ -27,7 +28,8 @@ public partial class Slide3ViewModel : ViewModelBase
     public IRelayCommand OpenAppDictionaryCommand { get; }
     public IRelayCommand OpenGameCompatCommand { get; }
 
-    public string GameCompatSummaryText { get; }
+    [ObservableProperty]
+    private string _gameCompatSummaryText = string.Empty;
 
     [ObservableProperty]
     private string _gpuStatusText = "Checking your hardware…";
@@ -41,9 +43,10 @@ public partial class Slide3ViewModel : ViewModelBase
     public Slide3ViewModel(MigrationState state, GameCompatModalViewModel gameCompat, Action openAppDictionary, Action openGameCompat)
     {
         _state = state;
+        _gameCompat = gameCompat;
         OpenAppDictionaryCommand = new RelayCommand(openAppDictionary);
         OpenGameCompatCommand = new RelayCommand(openGameCompat);
-        GameCompatSummaryText = BuildGameCompatSummary(gameCompat);
+        UpdateGameCompatSummary();
 
         SkipOption = new SelectableOption<BackupMethod>(Select)
         {
@@ -75,19 +78,46 @@ public partial class Slide3ViewModel : ViewModelBase
         SyncBackupSelection();
 
         _state.PropertyChanged += OnStateChanged;
+        _gameCompat.PropertyChanged += OnGameCompatChanged;
         UpdateGpuStatus();
     }
 
-    private static string BuildGameCompatSummary(GameCompatModalViewModel gameCompat)
+    private void OnGameCompatChanged(object? sender, PropertyChangedEventArgs e)
     {
-        var runningWell = gameCompat.RunsPerfectly.Count + gameCompat.RunsFine.Count;
-        var total = runningWell + gameCompat.UnknownTier.Count;
+        // The ProtonDB lookups finish after construction; refresh the summary when
+        // they land (or when we learn they never will, e.g. no network).
+        if (e.PropertyName is nameof(GameCompatModalViewModel.IsLoading)
+            or nameof(GameCompatModalViewModel.LookupUnavailable))
+        {
+            UpdateGameCompatSummary();
+        }
+    }
+
+    private void UpdateGameCompatSummary()
+    {
+        if (_gameCompat.IsLoading)
+        {
+            GameCompatSummaryText = "Checking ProtonDB compatibility…";
+            return;
+        }
+
+        if (_gameCompat.LookupUnavailable)
+        {
+            GameCompatSummaryText = "Couldn't reach ProtonDB - compatibility unknown.";
+            return;
+        }
+
+        var runningWell = _gameCompat.RunsPerfectly.Count + _gameCompat.RunsFine.Count;
+        var total = runningWell + _gameCompat.WontRun.Count + _gameCompat.UnknownTier.Count;
 
         if (total == 0)
-            return "No Steam library was detected on this PC.";
+        {
+            GameCompatSummaryText = "No Steam library was detected on this PC.";
+            return;
+        }
 
         var percent = (int)Math.Round(runningWell * 100.0 / total);
-        return $"Your game library is {percent}% compatible.";
+        GameCompatSummaryText = $"Your game library is {percent}% compatible.";
     }
 
     private void Select(BackupMethod value)
