@@ -7,7 +7,7 @@
 .env
 
 # Packaged build artifact for VM testing (see package-for-vm.sh)
-KargoApp.zip
+OneSwitchApp.zip
 
 # User-specific files
 *.rsuser

@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:OneSwitch.ViewModels"
+             xmlns:m="clr-namespace:OneSwitch.Models"
+             xmlns:conv="clr-namespace:OneSwitch.Converters"
+             x:Class="OneSwitch.Views.Slide2View"
+             x:DataType="vm:Slide2ViewModel">
+    <StackPanel Spacing="4">
+        <TextBlock Classes="title1" Text="{Binding Header.Title}" TextWrapping="Wrap"/>
+        <TextBlock Classes="dim" Text="{Binding Header.Subtitle}" TextWrapping="Wrap"/>
+
+        <Border Classes="group" Margin="0,24,0,0">
+            <ItemsControl ItemsSource="{Binding Options}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="m:ISelectableOption">
+                        <StackPanel>
+                            <Border Classes="separator auto"/>
+                            <Button Classes="row" Classes.selected="{Binding IsSelected}" Command="{Binding SelectCommand}"
+                                    MinHeight="64">
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="12">
+                                    <Border Classes="lead" Classes.accent="{Binding IsSelected}">
+                                        <PathIcon Data="{Binding IconKey, Converter={x:Static conv:IconConverter.Instance}}"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                        <TextBlock Classes="strong" Text="{Binding Title}"/>
+                                        <TextBlock Classes="caption dim" Text="{Binding Description}" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" Classes="caption faint" Text="{Binding Caption}"
+                                               VerticalAlignment="Center"/>
+                                    <Border Grid.Column="3" Classes="radio" Classes.on="{Binding IsSelected}">
+                                        <Ellipse/>
+                                    </Border>
+                                </Grid>
+                            </Button>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
+    </StackPanel>
+</UserControl>

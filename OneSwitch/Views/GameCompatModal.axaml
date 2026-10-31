@@ -1,0 +1,105 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:OneSwitch.ViewModels"
+             xmlns:m="clr-namespace:OneSwitch.Models"
+             xmlns:conv="clr-namespace:OneSwitch.Converters"
+             x:Class="OneSwitch.Views.GameCompatModal"
+             x:DataType="vm:GameCompatModalViewModel">
+    <UserControl.Resources>
+        <DataTemplate x:Key="TierTemplate" x:DataType="vm:GameCompatTierViewModel">
+            <StackPanel IsVisible="{Binding !IsEmpty}">
+                <StackPanel Orientation="Horizontal" Spacing="8" Margin="2,20,2,8">
+                    <TextBlock Classes="heading" Text="{Binding TierTitle}" VerticalAlignment="Center"/>
+                    <Border Classes="badge">
+                        <TextBlock Classes="caption dim" Text="{Binding Count}"/>
+                    </Border>
+                </StackPanel>
+                <Border Classes="group">
+                    <StackPanel>
+                        <ItemsControl ItemsSource="{Binding VisibleEntries}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="m:GameCompatEntry">
+                                    <StackPanel>
+                                        <Border Classes="separator auto"/>
+                                        <StackPanel Margin="14,8" MinHeight="36" VerticalAlignment="Center" Spacing="2">
+                                            <TextBlock Classes="strong" Text="{Binding Title}" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Classes="caption dim" Text="{Binding ProtonDbNote}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <StackPanel IsVisible="{Binding HasMore}">
+                            <Border Classes="separator"/>
+                            <Button Classes="row" MinHeight="44" Command="{Binding ToggleExpandCommand}">
+                                <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding ExpandButtonText}" Foreground="{DynamicResource One.AccentText}"
+                                               FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <PathIcon Data="{Binding ExpandIconKey, Converter={x:Static conv:IconConverter.Instance}}"
+                                              Foreground="{DynamicResource One.AccentText}" Width="12" Height="12"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Border Classes="dialog" Width="600">
+        <Grid RowDefinitions="Auto,Auto,*,Auto">
+            <Grid ColumnDefinitions="*,Auto,*" Height="50">
+                <TextBlock Grid.Column="1" Classes="heading" Text="Games" VerticalAlignment="Center"/>
+                <Button Grid.Column="2" Classes="wm" HorizontalAlignment="Right" Margin="0,0,13,0"
+                        ToolTip.Tip="Close" Command="{Binding CloseCommand}">
+                    <PathIcon Data="{StaticResource Icon.Close}" Width="12" Height="12"/>
+                </Button>
+            </Grid>
+
+            <TextBlock Grid.Row="1" Classes="dim" Margin="24,0,24,4" TextWrapping="Wrap"
+                       Text="How your Steam games run on Linux, based on community reports from ProtonDB."/>
+
+            <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <Panel Margin="24,0,24,8">
+                    <StackPanel IsVisible="{Binding IsLoading}" Spacing="4" Margin="0,40">
+                        <TextBlock Classes="strong" Text="Checking ProtonDB reports…" HorizontalAlignment="Center"/>
+                        <TextBlock Classes="caption dim" Text="This can take a moment for large libraries."
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel IsVisible="{Binding HasNoGamesDetected}" Spacing="8" Margin="0,40">
+                        <Border Classes="lead" HorizontalAlignment="Center" Width="48" Height="48" CornerRadius="14">
+                            <PathIcon Data="{StaticResource Icon.Games}" Width="24" Height="24"/>
+                        </Border>
+                        <TextBlock Classes="heading" Text="No Steam library found" HorizontalAlignment="Center"/>
+                        <TextBlock Classes="caption dim" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="360"
+                                   HorizontalAlignment="Center"
+                                   Text="Install Steam on Linux after switching and your library will be there."/>
+                    </StackPanel>
+
+                    <StackPanel IsVisible="{Binding !IsLoading}">
+                        <Border Classes="group" IsVisible="{Binding LookupUnavailable}" Margin="0,16,0,0">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Margin="14,10">
+                                <Border Classes="lead warning">
+                                    <PathIcon Data="{StaticResource Icon.Warning}"/>
+                                </Border>
+                                <TextBlock Grid.Column="1" Classes="caption dim" VerticalAlignment="Center" TextWrapping="Wrap"
+                                           Text="Couldn't reach ProtonDB, so compatibility is unknown. Check your connection and reopen oneSwitch."/>
+                            </Grid>
+                        </Border>
+                        <ContentControl Content="{Binding RunsPerfectly}" ContentTemplate="{StaticResource TierTemplate}"/>
+                        <ContentControl Content="{Binding RunsFine}" ContentTemplate="{StaticResource TierTemplate}"/>
+                        <ContentControl Content="{Binding WontRun}" ContentTemplate="{StaticResource TierTemplate}"/>
+                        <ContentControl Content="{Binding UnknownTier}" ContentTemplate="{StaticResource TierTemplate}"/>
+                    </StackPanel>
+                </Panel>
+            </ScrollViewer>
+
+            <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="24,12,24,20">
+                <Button Grid.Column="1" Classes="suggested" Content="Done" MinWidth="96"
+                        Command="{Binding CloseCommand}"/>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

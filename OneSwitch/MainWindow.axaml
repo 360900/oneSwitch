@@ -1,0 +1,87 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:OneSwitch.Views"
+        xmlns:vm="clr-namespace:OneSwitch.ViewModels"
+        x:Class="OneSwitch.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="oneSwitch"
+        Icon="avares://OneSwitch/Assets/oneswitch_icon.png"
+        Width="880" Height="720" MinWidth="560" MinHeight="520"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource One.Canvas}"
+        Foreground="{DynamicResource One.Text}"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        WindowDecorations="BorderOnly">
+
+    <Grid>
+        <Grid RowDefinitions="50,*,Auto">
+            <!-- Headerbar: centered title, close-only window control. -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto,*" Background="{DynamicResource One.Headerbar}"
+                  PointerPressed="Headerbar_PointerPressed" DoubleTapped="Headerbar_DoubleTapped">
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"
+                            IsHitTestVisible="False">
+                    <Image Source="avares://OneSwitch/Assets/oneswitch_icon.png" Width="20" Height="20"/>
+                    <TextBlock Classes="heading" Text="oneSwitch" VerticalAlignment="Center"/>
+                </StackPanel>
+                <Button Grid.Column="2" Classes="wm" HorizontalAlignment="Right" Margin="0,0,13,0"
+                        ToolTip.Tip="Close" Click="CloseButton_Click">
+                    <PathIcon Data="{StaticResource Icon.Close}" Width="12" Height="12"/>
+                </Button>
+            </Grid>
+
+            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <TransitioningContentControl Content="{Binding CurrentSlide}"
+                                             IsTransitionReversed="{Binding IsNavigatingBack}"
+                                             MaxWidth="680" Margin="32,12,32,32">
+                    <TransitioningContentControl.PageTransition>
+                        <CompositePageTransition>
+                            <PageSlide Duration="0:0:0.22" Orientation="Horizontal" SlideInEasing="0.2,0,0,1" SlideOutEasing="0.2,0,0,1"/>
+                            <CrossFade Duration="0:0:0.22"/>
+                        </CompositePageTransition>
+                    </TransitioningContentControl.PageTransition>
+                </TransitioningContentControl>
+            </ScrollViewer>
+
+            <!-- Footer: back, progress, continue. -->
+            <Border Grid.Row="2" BorderBrush="{DynamicResource One.Stroke}" BorderThickness="0,1,0,0">
+                <Grid ColumnDefinitions="*,Auto,*" Margin="20,12">
+                    <Button Grid.Column="0" HorizontalAlignment="Left" IsVisible="{Binding CanGoBack}"
+                            Command="{Binding BackCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="{StaticResource Icon.GoPrevious}"/>
+                            <TextBlock Text="Back" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <Border Classes="step" Classes.on="{Binding IsStep1}"/>
+                        <Border Classes="step" Classes.on="{Binding IsStep2}"/>
+                        <Border Classes="step" Classes.on="{Binding IsStep3}"/>
+                    </StackPanel>
+
+                    <Panel Grid.Column="2" HorizontalAlignment="Right">
+                        <Button Classes="suggested" IsVisible="{Binding !IsLastStep}" Command="{Binding NextCommand}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="Continue" VerticalAlignment="Center"/>
+                                <PathIcon Data="{StaticResource Icon.GoNext}"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Classes="suggested" IsVisible="{Binding IsLastStep}" Command="{Binding StartMigrationCommand}"
+                                Content="Create migration files"/>
+                    </Panel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Dialogs -->
+        <Panel Name="Scrim" IsVisible="{Binding IsDialogOpen}" Background="{DynamicResource One.Scrim}"
+               PointerPressed="Scrim_PointerPressed">
+            <views:AppTranslationModal DataContext="{Binding AppTranslationModal}"
+                                       IsVisible="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).IsAppTranslationModalVisible}"/>
+            <views:GameCompatModal DataContext="{Binding GameCompatModal}"
+                                   IsVisible="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).IsGameCompatModalVisible}"/>
+            <views:MigrationResultDialog IsVisible="{Binding IsResultVisible}"/>
+        </Panel>
+    </Grid>
+</Window>

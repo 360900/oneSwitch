@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# Builds AvaloniaApp and packages the output into a single zip so it can be
+# Builds OneSwitch and packages the output into a single zip so it can be
 # copied into the Windows VM instead of running straight off the RDP-redirected
 # shared folder (WinBoat), which caches stale file contents client-side.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$SCRIPT_DIR/AvaloniaApp"
+PROJECT_DIR="$SCRIPT_DIR/OneSwitch"
 OUTPUT_DIR="$PROJECT_DIR/bin/Debug/net10.0"
-ZIP_PATH="$SCRIPT_DIR/KargoApp.zip"
+ZIP_PATH="$SCRIPT_DIR/OneSwitchApp.zip"
 
 echo "Building..."
-dotnet build "$PROJECT_DIR/AvaloniaApp.csproj"
+dotnet build "$PROJECT_DIR/OneSwitch.csproj"
 
 echo "Packaging build output..."
 rm -f "$ZIP_PATH"

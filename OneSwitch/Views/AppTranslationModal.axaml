@@ -1,0 +1,86 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:OneSwitch.ViewModels"
+             xmlns:m="clr-namespace:OneSwitch.Models"
+             x:Class="OneSwitch.Views.AppTranslationModal"
+             x:DataType="vm:AppTranslationModalViewModel">
+    <Border Classes="dialog" Width="600">
+        <Grid RowDefinitions="Auto,Auto,*,Auto">
+            <Grid ColumnDefinitions="*,Auto,*" Height="50">
+                <TextBlock Grid.Column="1" Classes="heading" Text="Apps" VerticalAlignment="Center"/>
+                <Button Grid.Column="2" Classes="wm" HorizontalAlignment="Right" Margin="0,0,13,0"
+                        ToolTip.Tip="Close" Command="{Binding CloseCommand}">
+                    <PathIcon Data="{StaticResource Icon.Close}" Width="12" Height="12"/>
+                </Button>
+            </Grid>
+
+            <TextBlock Grid.Row="1" Classes="dim" Margin="24,0,24,16" TextWrapping="Wrap"
+                       Text="oneSwitch found these apps on your PC and picked a Linux equivalent for each. Uncheck anything you don't want installed."/>
+
+            <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <Panel Margin="24,0,24,8">
+                    <StackPanel IsVisible="{Binding IsLoading}" Spacing="4" Margin="0,32">
+                        <TextBlock Classes="strong" Text="Looking for installed apps…" HorizontalAlignment="Center"/>
+                        <TextBlock Classes="caption dim" Text="This can take a moment." HorizontalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel IsVisible="{Binding HasNoEntriesDetected}" Spacing="8" Margin="0,32">
+                        <Border Classes="lead" HorizontalAlignment="Center" Width="48" Height="48" CornerRadius="14">
+                            <PathIcon Data="{StaticResource Icon.AppGrid}" Width="24" Height="24"/>
+                        </Border>
+                        <TextBlock Classes="heading" Text="No familiar apps found" HorizontalAlignment="Center"/>
+                        <TextBlock Classes="caption dim" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="360"
+                                   HorizontalAlignment="Center"
+                                   Text="oneSwitch only suggests replacements for apps it knows. You can install anything else after switching."/>
+                    </StackPanel>
+
+                    <Border Classes="group" IsVisible="{Binding HasEntries}">
+                        <ItemsControl ItemsSource="{Binding Entries}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="m:AppTranslationEntry">
+                                    <StackPanel>
+                                        <Border Classes="separator auto"/>
+                                        <CheckBox IsChecked="{Binding IsIncluded}" Padding="14,8" MinHeight="56"
+                                                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                                  ToolTip.Tip="{Binding Explanation}">
+                                            <Grid ColumnDefinitions="Auto,Auto,Auto,*" ColumnSpacing="8" Margin="4,0,0,0">
+                                                <Border Classes="logo" Background="{Binding SourceLogoColor}">
+                                                    <TextBlock Text="{Binding SourceLogoGlyph}"/>
+                                                </Border>
+                                                <PathIcon Grid.Column="1" Data="{StaticResource Icon.GoNext}" Width="12" Height="12"
+                                                          Foreground="{DynamicResource One.Text3}"/>
+                                                <Border Grid.Column="2" Classes="logo" Background="{Binding TargetLogoColor}">
+                                                    <TextBlock Text="{Binding TargetLogoGlyph}"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="3" VerticalAlignment="Center" Spacing="2" Margin="4,0,0,0">
+                                                    <TextBlock Classes="strong" Text="{Binding TargetApp}" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Classes="caption dim" TextTrimming="CharacterEllipsis">
+                                                        <Run Text="Replaces"/>
+                                                        <Run Text="{Binding SourceApp}"/>
+                                                        <Run Text="·"/>
+                                                        <Run Text="{Binding ResolvedPackageDisplay}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Grid>
+                                        </CheckBox>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+                </Panel>
+            </ScrollViewer>
+
+            <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="24,12,24,20">
+                <TextBlock Classes="caption dim" VerticalAlignment="Center" IsVisible="{Binding HasEntries}">
+                    <Run Text="{Binding IncludedCount}"/>
+                    <Run Text="of"/>
+                    <Run Text="{Binding Entries.Count}"/>
+                    <Run Text="selected"/>
+                </TextBlock>
+                <Button Grid.Column="1" Classes="suggested" Content="Done" MinWidth="96"
+                        Command="{Binding CloseCommand}"/>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

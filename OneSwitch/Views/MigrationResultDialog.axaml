@@ -1,0 +1,69 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:OneSwitch.ViewModels"
+             x:Class="OneSwitch.Views.MigrationResultDialog"
+             x:DataType="vm:MainWindowViewModel">
+    <Border Classes="dialog" Width="480">
+        <StackPanel Margin="24" Spacing="16">
+            <StackPanel Spacing="12" HorizontalAlignment="Center">
+                <Border Classes="lead" Width="48" Height="48" CornerRadius="14" HorizontalAlignment="Center"
+                        Classes.success="{Binding !Result.IsError}" Classes.danger="{Binding Result.IsError}">
+                    <Panel>
+                        <PathIcon Data="{StaticResource Icon.Check}" Width="24" Height="24"
+                                  IsVisible="{Binding !Result.IsError}" Foreground="{DynamicResource One.Success}"/>
+                        <PathIcon Data="{StaticResource Icon.Error}" Width="24" Height="24"
+                                  IsVisible="{Binding Result.IsError}" Foreground="{DynamicResource One.Danger}"/>
+                    </Panel>
+                </Border>
+                <TextBlock Classes="title3" Text="{Binding Result.Title}" HorizontalAlignment="Center"/>
+                <TextBlock Classes="caption dim" Text="{Binding Result.Message}" TextWrapping="Wrap"
+                           TextAlignment="Center" HorizontalAlignment="Center"/>
+            </StackPanel>
+
+            <Border Classes="group" IsVisible="{Binding !Result.IsError}">
+                <ItemsControl ItemsSource="{Binding Result.Files}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <StackPanel>
+                                <Border Classes="separator auto"/>
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Margin="14,8">
+                                    <Border Classes="lead">
+                                        <PathIcon Data="{StaticResource Icon.Terminal}"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1" Classes="mono" Text="{Binding}" VerticalAlignment="Center"/>
+                                </Grid>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+
+            <ItemsControl ItemsSource="{Binding Result.Notes}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Spacing="8"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                            <PathIcon Data="{StaticResource Icon.Info}" Width="14" Height="14" VerticalAlignment="Top"
+                                      Margin="0,1,0,0" Foreground="{DynamicResource One.AccentText}"/>
+                            <TextBlock Grid.Column="1" Classes="caption dim" Text="{Binding}" TextWrapping="Wrap"/>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                <Button IsVisible="{Binding !Result.IsError}" Command="{Binding OpenOutputFolderCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{StaticResource Icon.FolderOpen}"/>
+                        <TextBlock Text="Open folder" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Classes="suggested" Content="Done" MinWidth="96" Command="{Binding CloseResultCommand}"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>
